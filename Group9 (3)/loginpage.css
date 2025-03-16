@@ -1,0 +1,102 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #001f3f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+.login-container {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+}
+.logo {
+    width: 200px;
+    height: 200px;
+    margin-bottom: 10px;
+}
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+.input-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.remember-me input {
+    margin-right: 5px;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 16px;
+    margin-top: 10px;
+    text-decoration: none;
+}
+.btn:hover {
+    background-color: #CC0000;
+}
+.user-btn {
+    background-color: #ff8c00; 
+}
+.user-btn:hover {
+    background-color: #CC0000;
+}
+.coach-btn {
+    background-color: #ff8c00; 
+}
+.coach-btn:hover {
+    background-color: #CC0000;
+}
+
+
+.return-home {
+    background-color: #ff8c00; 
+}
+.return-home:hover {
+    background-color: #CC0000;
+}
+.text-center {
+    margin-top: 10px;
+}
+.text-center a {
+    color: #007bff;
+    text-decoration: none;
+}
+.text-center a:hover {
+    text-decoration: underline;
+}
+

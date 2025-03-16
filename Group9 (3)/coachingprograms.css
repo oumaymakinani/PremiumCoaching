@@ -1,0 +1,112 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #001f3f; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+.container {
+    width: 100%;
+    max-width: 650px;
+    text-align: center;
+}
+.logo-img {
+    width: 150px;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+.return-home {
+    display: block;
+    width: 100%; 
+	max-width: 650px; 
+    background-color: #ff8c00; 
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 18px;
+    text-decoration: none;
+	font-weight: bold;
+    margin-bottom: 15px;
+}
+.return-home:hover {
+    background-color: #cc0000;
+}
+
+.section-container {
+    background: #ff8c00; 
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    color: white;
+    text-align: center;
+    width: 100%;
+    max-width: 650px; 
+    box-sizing: border-box;
+}
+
+.coach-container, .program-container {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.coach-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: black;
+    max-width: 90%;
+    margin: 10px auto;
+}
+.coach-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%; 
+    object-fit: cover; 
+    border: 3px solid white; 
+    margin-bottom: 10px;
+}
+
+.program-card {
+    background: white;
+    padding: 60px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: black;
+    max-width: 90%;
+    margin: 10px auto;
+}
+
+.btn {
+    display: block;
+    width: 100%; 
+    background-color: #ff8c00; 
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 16px;
+    text-decoration: none;
+    margin-top: 15px;
+}
+.btn:hover {
+    background-color: #cc0000;
+}
+
+

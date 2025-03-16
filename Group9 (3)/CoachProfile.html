@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Profile Page</title>
+    <link rel="stylesheet" href="coachprofile.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <img src="logo.jpg" alt="Logo" class="logo-img">
+
+        <div class="profile-container">
+            <img src="coach.jpg" alt="Coach Profile Picture" class="profile-img">
+            <h2 class="profile-name">Michael Carter</h2>
+            <p class="profile-role">Professional Soccer Coach</p>
+            <p class="profile-bio">
+                Experienced soccer coach specializing in tactical play, fitness, and skill development.
+                Dedicated to training players of all skill levels.
+            </p>
+        </div>
+
+        <div class="info-container">
+            <h3>Coach Details</h3>
+            <p><strong>Email:</strong> michael.carter@premiumcoaching.ca</p>
+            <p><strong>Phone:</strong> +1 123-456-7890</p>
+            <p><strong>Certifications:</strong> UEFA B License, 10+ Years Experience</p>
+        </div>
+
+        <div class="info-container">
+            <h3>Upcoming Training Sessions</h3>
+            <ul>
+                <li>Feb 10, 2025 - Tactical Play with Katleho Seisa</li>
+                <li>Feb 15, 2025 - Speed & Agility Training</li>
+                <li>Feb 22, 2025 - Shooting & Finishing Drills</li>
+            </ul>
+        </div>
+
+        <button class="btn" onclick="openScheduleForm()">Schedule a Training Session</button>
+        <a href="LoginPage.html" class="btn logout">Logout</a>
+    </div>
+
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeScheduleForm()">&times;</span>
+            <h2>Schedule a Training Session</h2>
+            <div class="schedule-container">
+                <form id="scheduleForm">
+                    <label for="session-type">Training Type:</label>
+					
+                    <select id="session-type" name="session-type" required>
+                        <option value="Tactical Play">Tactical Play</option>
+                        <option value="Speed & Agility">Speed & Agility</option>
+                        <option value="Shooting & Finishing">Shooting & Finishing</option>
+                        <option value="Ball Control & Dribbling">Ball Control & Dribbling</option>
+                    </select>
+
+                    <label for="session-date">Select Date:</label>
+                    <input type="date" id="session-date" name="session-date" required>
+
+                    <label for="session-time">Select Time:</label>
+                    <input type="time" id="session-time" name="session-time" required>
+
+                    <button type="submit" class="btn">Schedule Session</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openScheduleForm() {
+            document.getElementById("scheduleModal").style.display = "block";
+        }
+
+        function closeScheduleForm() {
+            document.getElementById("scheduleModal").style.display = "none";
+        }
+
+        document.getElementById("scheduleForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const sessionType = document.getElementById("session-type").value;
+            const date = document.getElementById("session-date").value;
+            const time = document.getElementById("session-time").value;
+            
+            alert(`Training session scheduled for ${sessionType} on ${date} at ${time}.`);
+            closeScheduleForm();
+        });
+    </script>
+	
+</body>
+</html>
