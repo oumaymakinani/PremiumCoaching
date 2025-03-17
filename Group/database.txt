@@ -1,0 +1,81 @@
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    role VARCHAR(10) CHECK (role IN ('player', 'coach')) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE coaches (
+    coach_id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    specialization VARCHAR(100) NOT NULL,
+    experience_years INT NOT NULL,
+    certification VARCHAR(100),
+    bio TEXT,
+    profile_image VARCHAR(255) DEFAULT 'default.jpg'
+);
+
+CREATE TABLE training_sessions (
+    session_id SERIAL PRIMARY KEY,
+    coach_id INT REFERENCES coaches(coach_id) ON DELETE CASCADE,
+    title VARCHAR(100) NOT NULL,
+    description TEXT NOT NULL,
+    session_date DATE NOT NULL,
+    session_time TIME NOT NULL,
+    max_participants INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE bookings (
+    booking_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    session_id INT REFERENCES training_sessions(session_id) ON DELETE CASCADE,
+    status VARCHAR(20) CHECK (status IN ('confirmed', 'pending', 'cancelled')) DEFAULT 'pending',
+    booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE feedback (
+    feedback_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    coach_id INT REFERENCES coaches(coach_id) ON DELETE CASCADE,
+    rating INT CHECK (rating BETWEEN 1 AND 5) NOT NULL,
+    comments TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE availability (
+    availability_id SERIAL PRIMARY KEY,
+    coach_id INTEGER REFERENCES coaches(user_id) ON DELETE CASCADE,
+    available_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    status VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'booked'))
+);
+
+
+
+INSERT INTO users (full_name, email, password, phone, role) VALUES
+('Michael Carter', 'michael.carter@premiumcoaching.ca', '$2y$10$hashedpassword1', '+1 123-456-7890', 'coach'),
+('Johnathan Booker', 'johnathan.booker@premiumcoaching.ca', '$2y$10$hashedpassword2', '+1 123-456-7891', 'coach'),
+('Samantha Radcliff', 'samantha.radcliff@premiumcoaching.ca', '$2y$10$hashedpassword3', '+1 123-456-7892', 'coach'),
+('Katleho Seisa', 'seisa@email.com', '$2y$10$hashedpassword4', '+1 613-654-3650', 'player');
+
+INSERT INTO coaches (user_id, specialization, experience_years, certification, bio, profile_image) VALUES
+(7, 'Tactical Play & Fitness', 10, 'UEFA B License', 'Expert in tactical game play.', 'coach1.jpg'),
+(8, 'Speed & Agility', 8, 'Advanced Speed Training Cert.', 'Specializes in reaction time & acceleration.', 'coach2.jpg'),
+(9, 'Ball Control & Dribbling', 12, 'Elite Dribbling Academy', 'Teaches ball mastery & movement.', 'coach3.jpg');
+
+INSERT INTO training_sessions (coach_id, title, description, session_date, session_time, max_participants) VALUES
+(1, 'Tactical Play Training', 'Learn advanced strategies, formations, and game awareness.', '2025-02-10', '15:00:00', 10),
+(2, 'Speed & Agility Drills', 'Boost acceleration, reaction time, and overall agility.', '2025-02-17', '16:00:00', 15),
+(3, 'Shooting & Finishing Techniques', 'Master precision shooting, volleys, and goal-scoring techniques.', '2025-02-24', '14:30:00', 12);
+
+INSERT INTO bookings (user_id, session_id, status) VALUES
+(4, 1, 'confirmed'),  -- Katleho Seisa booked Tactical Play
+(4, 2, 'confirmed');  -- Katleho Seisa booked Speed & Agility
+
+INSERT INTO feedback (user_id, coach_id, rating, comments) VALUES
+(4, 1, 5, 'Excellent tactical coaching!'),
+(4, 2, 4, 'Great drills for speed improvement.');

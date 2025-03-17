@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Profile Page</title>
+    <link rel="stylesheet" href="coachprofile.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <a href="HomePage.html" class="btn home-btn">🏠 Back to Home</a>
+        <img src="logo.jpg" alt="Logo" class="logo-img">
+
+        <div class="profile-container">
+            <img id="coach-image" src="coach2.jpg" alt="Coach Profile Picture" class="profile-img">
+            <h2 id="profile-name">Loading...</h2>
+        </div>
+
+        <div class="info-container">
+            <h3>Coach Details</h3>
+            <p><strong>Email:</strong> <span id="coach-email"></span></p>
+            <p><strong>Phone:</strong> <span id="coach-phone"></span></p>
+        </div>
+
+        <div class="info-container">
+            <h3>Upcoming Training Sessions</h3>
+            <ul id="training-sessions"></ul>
+        </div>
+
+        <a class="btn" onclick="openScheduleForm()">Schedule a Training Session</a>
+        <a href="LoginPage.html" class="btn logout">Logout</a>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeScheduleForm()">&times;</span>
+            <h2>Schedule a Training Session</h2>
+            <form id="scheduleForm">
+                <label for="session-type">Training Type:</label>
+                <select id="session-type" name="session-type" required>
+                    <option value="Tactical Play">Tactical Play</option>
+                    <option value="Speed & Agility">Speed & Agility</option>
+                    <option value="Shooting & Finishing">Shooting & Finishing</option>
+                    <option value="Ball Control & Dribbling">Ball Control & Dribbling</option>
+                </select>
+
+                <label for="session-difficulty">Difficulty Level:</label>
+                <select id="session-difficulty" name="session-difficulty" required>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+
+                <label for="session-type-mode">Session Type:</label>
+                <select id="session-type-mode" name="session-type-mode" required>
+                    <option value="Group Training">Group Training</option>
+                    <option value="One-on-One">One-on-One</option>
+                </select>
+
+                <label for="session-duration">Duration (minutes):</label>
+                <input type="number" id="session-duration" name="session-duration" min="30" max="120" required>
+
+                <button type="submit" class="btn">Schedule Session</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openScheduleForm() {
+            document.getElementById("scheduleModal").style.display = "flex";
+        }
+
+        function closeScheduleForm() {
+            document.getElementById("scheduleModal").style.display = "none";
+        }
+
+        function fetchCoachDetails() {
+            const userId = localStorage.getItem("user_id");
+
+            fetch(`backend/get_coach_details.php?user_id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    document.getElementById("profile-name").innerText = data.full_name || "Unknown";
+                    document.getElementById("coach-email").innerText = data.email || "N/A";
+                    document.getElementById("coach-phone").innerText = data.phone || "N/A";
+
+                    localStorage.setItem("coach_id", data.coach_id);
+                    if (data.coach_id) {
+                        loadUpcomingSessions(data.coach_id);
+                    }
+                })
+                .catch(error => console.error("Error fetching coach details:", error));
+        }
+
+        function loadUpcomingSessions(coachId) {
+            fetch(`backend/get_sessions.php?coach_id=${coachId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let sessionList = document.getElementById("training-sessions");
+                    sessionList.innerHTML = "";
+                    if (data.length === 0) {
+                        sessionList.innerHTML = "<p>No training sessions scheduled.</p>";
+                        return;
+                    }
+                    data.forEach(session => {
+                        let listItem = document.createElement("li");
+                        listItem.innerText = `${session.title}`; 
+                        sessionList.appendChild(listItem);
+                    });
+                })
+                .catch(error => console.error("Error loading sessions:", error));
+        }
+
+        document.getElementById("scheduleForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const coachId = localStorage.getItem("coach_id");
+
+            let formData = new FormData(this);
+            formData.append("coach_id", coachId);
+
+            fetch("backend/schedule_session.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Session scheduled successfully!");
+                    closeScheduleForm();
+                    loadUpcomingSessions(coachId);
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => console.error("Error scheduling session:", error));
+        });
+
+        document.addEventListener("DOMContentLoaded", fetchCoachDetails);
+    </script>
+</body>
+</html>

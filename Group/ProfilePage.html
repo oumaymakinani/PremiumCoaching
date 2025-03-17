@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Page</title>
+    <link rel="stylesheet" href="profilepage.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Back to Home Button -->
+        <a href="HomePage.html" class="btn home-btn">Home</a>
+        <img src="logo.jpg" alt="Logo" class="logo-img">
+
+        <div class="profile-container">
+            <img src="User.jpg" alt="User Profile Picture" class="profile-img">
+            <h2 id="profile-name"></h2>
+            <p id="profile-role"></p>
+        </div>
+
+        <div class="info-container">
+            <h3>Account Details</h3>
+            <p><strong>Email:</strong> <span id="user-email"></span></p>
+            <p><strong>Phone:</strong> <span id="user-phone"></span></p>
+        </div>
+
+        <div class="info-container">
+            <h3>Booked Coach</h3>
+            <div id="coach-booking-container"></div>
+        </div>
+
+        <div class="info-container">
+            <h3>Upcoming Training Sessions</h3>
+            <ul id="training-sessions"></ul>
+        </div>
+
+        <a class="btn" id="manage-bookings">Manage Bookings</a>
+        <a href="LoginPage.html" class="btn logout">Logout</a>
+        <!-- New Buttons -->
+        <a href="ProgramsPage.html" class="btn program-btn">Browse Our Programs</a>
+        <a href="FeedbackPage.html" class="btn feedback-page-btn">Give Feedback</a>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBookingForm()">&times;</span>
+            <h2>Book a Training Session</h2>
+            <form id="bookingForm">
+                <label for="coach-select">Select Coach:</label>
+                <select id="coach-select" name="coach" required></select>
+
+                <label for="available-slot-select">Select Available Slot:</label>
+                <select id="available-slot-select" name="available_slot" required></select>
+
+                <label for="session-select">Select Session:</label>
+                <select id="session-select" name="session" required></select>
+
+                <button type="submit" class="btn">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("backend/get_profile.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        window.location.href = "LoginPage.html";
+                        return;
+                    }
+
+                    document.getElementById("profile-name").innerText = data.user.full_name;
+                    document.getElementById("profile-role").innerText = data.user.role;
+                    document.getElementById("user-email").innerText = data.user.email;
+                    document.getElementById("user-phone").innerText = data.user.phone;
+
+                    let coachContainer = document.getElementById("coach-booking-container");
+                    if (data.booked_coach) {
+                        coachContainer.innerHTML = `
+                            <div class="coach-card">
+                                <img src="coach.jpg" alt="Coach Profile" class="coach-img">
+                                <div class="coach-details">
+                                    <p><strong>Coach:</strong> ${data.booked_coach.name}</p>
+                                    <p><strong>Specialty:</strong> ${data.booked_coach.specialization}</p>
+                                    <p><strong>Next Session:</strong> ${data.booked_coach.session_date}</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        coachContainer.innerHTML = "<p>No coach booked yet.</p>";
+                    }
+
+                    let sessionList = document.getElementById("training-sessions");
+                    sessionList.innerHTML = "";
+                    data.upcoming_sessions.forEach(session => {
+                        let listItem = document.createElement("li");
+                        listItem.innerText = `${session.session_date} - ${session.title}`;
+                        sessionList.appendChild(listItem);
+                    });
+                })
+                .catch(error => console.error("Error fetching profile data:", error));
+        });
+
+        document.getElementById("manage-bookings").addEventListener("click", function () {
+            fetch("backend/get_coaches.php")
+                .then(response => response.json())
+                .then(coaches => {
+                    let coachSelect = document.getElementById("coach-select");
+                    coachSelect.innerHTML = "";
+
+                    coaches.forEach(coach => {
+                        let coachOption = document.createElement("option");
+                        coachOption.value = coach.coach_id;
+                        coachOption.innerText = coach.name;
+                        coachSelect.appendChild(coachOption);
+                    });
+
+                    let firstCoachId = coaches[0].coach_id;
+                    loadAvailableSlots(firstCoachId);
+                    loadSessions(firstCoachId);
+                    document.getElementById("bookingModal").style.display = "block";
+                })
+                .catch(error => console.error("Error fetching coaches:", error));
+        });
+
+        document.getElementById("coach-select").addEventListener("change", function () {
+            let selectedCoachId = this.value;
+            loadAvailableSlots(selectedCoachId);
+            loadSessions(selectedCoachId);
+        });
+
+        function loadAvailableSlots(coachId) {
+            fetch(`backend/get_availabilities.php?coach_id=${coachId}`)
+                .then(response => response.json())
+                .then(slots => {
+                    let slotSelect = document.getElementById("available-slot-select");
+                    slotSelect.innerHTML = "";
+
+                    slots.forEach(slot => {
+                        let slotOption = document.createElement("option");
+                        slotOption.value = slot.availability_id;
+                        slotOption.innerText = `${slot.available_date} - ${slot.start_time} to ${slot.end_time}`;
+                        slotSelect.appendChild(slotOption);
+                    });
+
+                    loadSessions(coachId);
+                })
+                .catch(error => console.error("Error fetching slots:", error));
+        }
+
+        function loadSessions(coachId) {
+            fetch(`backend/get_sessions.php?coach_id=${coachId}`)
+                .then(response => response.json())
+                .then(sessions => {
+                    let sessionSelect = document.getElementById("session-select");
+                    sessionSelect.innerHTML = "";
+
+                    if (!Array.isArray(sessions)) {
+                        console.error("Invalid response format:", sessions);
+                        return;
+                    }
+
+                    sessions.forEach(session => {
+                        let sessionOption = document.createElement("option");
+                        sessionOption.value = session.session_id;
+                        sessionOption.innerText = `${session.title} - ${session.description}`;
+                        sessionSelect.appendChild(sessionOption);
+                    });
+                })
+                .catch(error => console.error("Error fetching training sessions:", error));
+        }
+
+        document.getElementById("bookingForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            let formData = new FormData(this);
+            formData.append("user_id", localStorage.getItem("user_id"));
+
+            fetch("backend/book_session.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.success || "Error: " + data.error);
+                    closeBookingForm();
+                    location.reload();
+                })
+                .catch(error => console.error("Error booking session:", error));
+        });
+
+        function closeBookingForm() {
+            document.getElementById("bookingModal").style.display = "none";
+        }
+    </script>
+</body>
+
+</html>

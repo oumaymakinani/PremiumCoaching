@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Page</title>
+    <link rel="stylesheet" href="feedback.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Coach Feedback</h1>
+
+
+
+        <!-- Filters -->
+        <div class="filters">
+            <label for="coach-filter">Filter by Coach:</label>
+            <select id="coach-filter">
+                <option value="">All Coaches</option>
+            </select>
+
+            <label for="rating-filter">Filter by Rating:</label>
+            <select id="rating-filter">
+                <option value="">All Ratings</option>
+                <option value="5">⭐️⭐️⭐️⭐️⭐️ (Excellent)</option>
+                <option value="4">⭐️⭐️⭐️⭐️ (Good)</option>
+                <option value="3">⭐️⭐️⭐️ (Average)</option>
+                <option value="2">⭐️⭐️ (Poor)</option>
+                <option value="1">⭐️ (Terrible)</option>
+            </select>
+
+            <label for="date-filter">Filter by Date:</label>
+            <input type="date" id="date-filter">
+
+            <button id="apply-filters">Apply Filters</button>
+        </div>
+
+        <!-- Feedback Carousel -->
+        <div class="carousel-container">
+            <button class="carousel-btn prev-btn">&lt;</button>
+            <div class="feedback-carousel">
+                <div class="feedback-list" id="feedback-container">
+                    <p>Loading feedback...</p>
+                </div>
+            </div>
+            <button class="carousel-btn next-btn">&gt;</button>
+        </div>
+
+        <!-- Submit Feedback -->
+        <div class="submit-feedback">
+            <h2>Submit Feedback</h2>
+            <form id="feedbackForm">
+                <label for="feedback-coach">Select Coach:</label>
+                <select id="feedback-coach" name="coach" required></select>
+
+                <label for="feedback-rating">Rating:</label>
+                <select id="feedback-rating" name="rating" required>
+                    <option value="5">⭐️⭐️⭐️⭐️⭐️ (Excellent)</option>
+                    <option value="4">⭐️⭐️⭐️⭐️ (Good)</option>
+                    <option value="3">⭐️⭐️⭐️ (Average)</option>
+                    <option value="2">⭐️⭐️ (Poor)</option>
+                    <option value="1">⭐️ (Terrible)</option>
+                </select>
+
+                <label for="feedback-text">Your Feedback:</label>
+                <textarea id="feedback-text" name="comments" rows="4" required></textarea>
+
+                <button type="submit" class="btn">Submit Feedback</button>
+            </form>
+        </div>
+        <div class="btn-back">
+            <!-- Back to Profile Button -->
+            <a href="ProfilePage.html" class="btn back-btn">Back to Profile</a>
+    </div>
+    </div>
+
+
+
+    <script>
+        let feedbackIndex = 0;
+        const itemsPerPage = 4;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchFeedback();
+            loadCoaches();
+            
+            document.getElementById("apply-filters").addEventListener("click", fetchFeedback);
+            document.getElementById("feedbackForm").addEventListener("submit", submitFeedback);
+            
+            document.querySelector(".prev-btn").addEventListener("click", () => navigateFeedback(-1));
+            document.querySelector(".next-btn").addEventListener("click", () => navigateFeedback(1));
+        });
+
+        function fetchFeedback() {
+            const coachId = document.getElementById("coach-filter").value;
+            const rating = document.getElementById("rating-filter").value;
+            const date = document.getElementById("date-filter").value;
+
+            let url = "backend/feedback.php";
+            let params = [];
+
+            if (coachId) params.push(`coach_id=${coachId}`);
+            if (rating) params.push(`rating=${rating}`);
+            if (date) params.push(`date=${date}`);
+
+            if (params.length) url += "?" + params.join("&");
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const feedbackContainer = document.getElementById("feedback-container");
+                    feedbackContainer.innerHTML = "";
+
+                    if (!data || data.length === 0) {
+                        feedbackContainer.innerHTML = "<p>No feedback found.</p>";
+                        return;
+                    }
+
+                    feedbackIndex = 0;
+                    window.feedbackData = data;
+                    displayFeedback();
+                })
+                .catch(error => console.error("Error fetching feedback:", error));
+        }
+
+        function displayFeedback() {
+            const feedbackContainer = document.getElementById("feedback-container");
+            feedbackContainer.innerHTML = "";
+
+            const start = feedbackIndex * itemsPerPage;
+            const end = start + itemsPerPage;
+            const data = window.feedbackData.slice(start, end);
+
+            data.forEach(feedback => {
+                const feedbackCard = document.createElement("div");
+                feedbackCard.classList.add("feedback-card");
+                feedbackCard.innerHTML = `
+                    <h3>${feedback.coach_name}</h3>
+                    <p><strong>Rating:</strong> ${"⭐️".repeat(feedback.rating)}</p>
+                    <p><strong>Comments:</strong> ${feedback.comments}</p>
+                    <p><strong>Date:</strong> ${feedback.created_at}</p>
+                `;
+                feedbackContainer.appendChild(feedbackCard);
+            });
+        }
+
+        function navigateFeedback(direction) {
+            const totalPages = Math.ceil(window.feedbackData.length / itemsPerPage);
+            feedbackIndex = (feedbackIndex + direction + totalPages) % totalPages;
+            displayFeedback();
+        }
+
+        function loadCoaches() {
+            fetch("backend/get_coaches.php")
+                .then(response => response.json())
+                .then(coaches => {
+                    const coachFilter = document.getElementById("coach-filter");
+                    const feedbackCoach = document.getElementById("feedback-coach");
+                    
+                    coachFilter.innerHTML = '<option value="">All Coaches</option>';
+                    feedbackCoach.innerHTML = '<option value="">Select Coach</option>';
+
+                    coaches.forEach(coach => {
+                        let option1 = document.createElement("option");
+                        option1.value = coach.coach_id;
+                        option1.innerText = coach.name;
+                        coachFilter.appendChild(option1);
+
+                        let option2 = document.createElement("option");
+                        option2.value = coach.coach_id;
+                        option2.innerText = coach.name;
+                        feedbackCoach.appendChild(option2);
+                    });
+                })
+                .catch(error => console.error("Error fetching coaches:", error));
+        }
+
+        function submitFeedback(event) {
+            event.preventDefault();
+            
+            let formData = new FormData(document.getElementById("feedbackForm"));
+
+            fetch("backend/feedback.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.success || data.error);
+                fetchFeedback();
+            })
+            .catch(error => console.error("Error submitting feedback:", error));
+        }
+    </script>
+</body>
+</html>

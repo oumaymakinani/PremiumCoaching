@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Our Programs</title>
+    <link rel="stylesheet" href="programs.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Browse Our Training Programs</h1>
+
+        <!-- Filter Section -->
+        <div class="filter-container">
+            <label for="difficulty-filter">Filter by Difficulty:</label>
+            <select id="difficulty-filter">
+                <option value="all">All</option>
+            </select>
+
+            <label for="type-filter">Filter by Type:</label>
+            <select id="type-filter">
+                <option value="all">All</option>
+            </select>
+
+            <button id="apply-filters">Apply Filters</button>
+        </div>
+
+        <!-- Programs List -->
+        <div class="programs-container" id="programs-list">
+            <!-- Programs will be dynamically loaded here -->
+        </div>
+
+        <a href="ProfilePage.html" class="btn back-btn">Back to Profile</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadFilters();
+            loadPrograms();
+
+            document.getElementById("apply-filters").addEventListener("click", function () {
+                loadPrograms();
+            });
+        });
+
+        function loadFilters() {
+            fetch("backend/get_filters.php")
+                .then(response => response.json())
+                .then(data => {
+                    let difficultyFilter = document.getElementById("difficulty-filter");
+                    let typeFilter = document.getElementById("type-filter");
+
+                    data.difficulties.forEach(difficulty => {
+                        let option = document.createElement("option");
+                        option.value = difficulty;
+                        option.innerText = difficulty;
+                        difficultyFilter.appendChild(option);
+                    });
+
+                    data.session_types.forEach(type => {
+                        let option = document.createElement("option");
+                        option.value = type;
+                        option.innerText = type;
+                        typeFilter.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching filters:", error));
+        }
+
+        function loadPrograms() {
+            let difficulty = document.getElementById("difficulty-filter").value;
+            let sessionType = document.getElementById("type-filter").value;
+
+            fetch(`backend/get_programs.php?difficulty=${difficulty}&session_type=${sessionType}`)
+                .then(response => response.json())
+                .then(programs => {
+                    let programsList = document.getElementById("programs-list");
+                    programsList.innerHTML = "";
+
+                    programs.forEach(program => {
+                        let programCard = document.createElement("div");
+                        programCard.classList.add("program-card");
+                        programCard.innerHTML = `
+                            <h3>${program.title}</h3>
+                            <p><strong>Description:</strong> ${program.description}</p>
+                            <p><strong>Difficulty:</strong> ${program.difficulty}</p>
+                            <p><strong>Type:</strong> ${program.session_type}</p>
+                            <p><strong>Duration:</strong> ${program.duration} mins</p>
+                        `;
+                        programsList.appendChild(programCard);
+                    });
+                })
+                .catch(error => console.error("Error fetching programs:", error));
+        }
+    </script>
+</body>
+
+</html>
