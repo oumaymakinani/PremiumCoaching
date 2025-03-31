@@ -6,7 +6,9 @@ header('Content-Type: application/json');
 $difficulty = $_GET['difficulty'] ?? 'all';
 $session_type = $_GET['session_type'] ?? 'all';
 
-$query = "SELECT session_id, title, description, difficulty, session_type, duration FROM training_sessions WHERE 1=1";
+$query = "SELECT session_id, title, description, difficulty, session_type, duration, likes 
+          FROM training_sessions 
+          WHERE 1=1";
 
 $params = [];
 $paramIndex = 1;

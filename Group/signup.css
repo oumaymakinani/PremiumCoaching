@@ -90,3 +90,13 @@ body {
 .text-center a:hover {
     text-decoration: underline;
 }
+
+.input-error {
+    border: 1px solid red;
+}
+
+.field-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+}
